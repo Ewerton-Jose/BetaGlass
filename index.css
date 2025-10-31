@@ -1,0 +1,75 @@
+* {
+
+    margin: 0px;
+    padding: 0px;
+
+}
+
+
+:root{
+  --bg: #111;
+  --card: #fafafa;
+}
+
+*{box-sizing:border-box}
+body{
+  font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg,#0f1724,#071029);
+  color: var(--card);
+}
+
+main{
+  text-align:center;
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: red;
+}
+
+
+
+
+/* Vídeo cobre o container */
+video{
+top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: red;
+  object-fit:cover;
+  display:block;
+}
+
+
+/* controles */
+
+
+button{
+  background:#16a34a;
+  color:white;
+  padding:150px 150px;
+  border-radius:100%;
+  cursor:pointer;
+  font-weight:800;
+  min-width: 50%;
+  font-size: 100%;
+  margin-top: -80%;
+
+}
+
+button[disabled]{
+  opacity:0.45;
+  cursor:not-allowed;
+}
+
+.error{
+  color:#ffb4b4;
+  margin-top:8px;
+  font-size:13px;
+  min-height:18px;
+}
