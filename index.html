@@ -76,12 +76,11 @@
       errorDiv.textContent = '';
       try {
         model = await tmImage.load(URL + 'model.json', URL + 'metadata.json');
-        maxPredictions = model.getTotalClasses();
-  const flip = true; // frontal espelhada
-  // Tamanho inicial adaptável (pode crescer dentro do container via CSS)
-  webcam = new tmImage.Webcam(640, 480, flip);
-  // força câmera frontal no mobile
-  await webcam.setup({ facingMode: "user" });
+    maxPredictions = model.getTotalClasses();
+    const flip = false; // traseira não deve ser espelhada
+    webcam = new tmImage.Webcam(640, 480, flip);
+  // força câmera traseira (apenas traseira). Se não houver, falha.
+  await webcam.setup({ facingMode: { exact: "environment" } });
         await webcam.play();
         window.requestAnimationFrame(loop);
         webcamContainer.appendChild(webcam.canvas);
@@ -91,14 +90,14 @@
         sizeCanvasCover();
         window.addEventListener('resize', sizeCanvasCover);
         window.addEventListener('orientationchange', sizeCanvasCover);
-        // Verifica se realmente veio frontal; se não, tenta enumerar devices
-        validateFrontCamera();
+  // Verifica se realmente veio traseira; se não, avisa.
+  validateBackCamera();
       } catch(err){
         startBtn.classList.remove('hidden');
         if (err && err.name === 'NotAllowedError') {
           errorDiv.textContent = 'Permissão negada: autorize o uso da câmera.';
-        } else if (err && err.name === 'NotFoundError') {
-          errorDiv.textContent = 'Nenhuma câmera encontrada.';
+        } else if (err && (err.name === 'NotFoundError' || err.name === 'OverconstrainedError')) {
+          errorDiv.textContent = 'Câmera traseira não disponível neste dispositivo.';
         } else {
           errorDiv.textContent = 'Erro ao inicializar: ' + (err.message || err);
         }
@@ -124,14 +123,14 @@
     }
 
     startBtn.addEventListener('click', init);
-    async function validateFrontCamera(){
+    async function validateBackCamera(){
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoInputs = devices.filter(d => d.kind === 'videoinput');
-        // Heurística: labels com 'front' ou 'user' ou baixa resolução tendem a ser frontais.
-        const frontLike = videoInputs.find(d => /front|user|face/i.test(d.label));
-        if (!frontLike && videoInputs.length > 1){
-          errorDiv.textContent = 'Aviso: usando câmera traseira (frontal não identificada).';
+        // Procura por labels indicando câmera traseira
+        const backLike = videoInputs.find(d => /back|rear|environment|traseira/i.test(d.label));
+        if (!backLike && videoInputs.length > 1){
+          errorDiv.textContent = 'Aviso: usando outra câmera (traseira não identificada).';
         }
       } catch(e){ /* silencioso */ }
     }
