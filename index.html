@@ -77,10 +77,11 @@
       try {
         model = await tmImage.load(URL + 'model.json', URL + 'metadata.json');
         maxPredictions = model.getTotalClasses();
-        const flip = true;
-        // Tamanho inicial adaptável (pode crescer dentro do container via CSS)
-        webcam = new tmImage.Webcam(640, 480, flip);
-        await webcam.setup();
+  const flip = true; // frontal espelhada
+  // Tamanho inicial adaptável (pode crescer dentro do container via CSS)
+  webcam = new tmImage.Webcam(640, 480, flip);
+  // força câmera frontal no mobile
+  await webcam.setup({ facingMode: "user" });
         await webcam.play();
         window.requestAnimationFrame(loop);
         webcamContainer.appendChild(webcam.canvas);
@@ -90,6 +91,8 @@
         sizeCanvasCover();
         window.addEventListener('resize', sizeCanvasCover);
         window.addEventListener('orientationchange', sizeCanvasCover);
+        // Verifica se realmente veio frontal; se não, tenta enumerar devices
+        validateFrontCamera();
       } catch(err){
         startBtn.classList.remove('hidden');
         if (err && err.name === 'NotAllowedError') {
@@ -121,6 +124,17 @@
     }
 
     startBtn.addEventListener('click', init);
+    async function validateFrontCamera(){
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter(d => d.kind === 'videoinput');
+        // Heurística: labels com 'front' ou 'user' ou baixa resolução tendem a ser frontais.
+        const frontLike = videoInputs.find(d => /front|user|face/i.test(d.label));
+        if (!frontLike && videoInputs.length > 1){
+          errorDiv.textContent = 'Aviso: usando câmera traseira (frontal não identificada).';
+        }
+      } catch(e){ /* silencioso */ }
+    }
   </script>
 </body>
 </html>
