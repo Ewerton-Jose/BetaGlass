@@ -48,9 +48,11 @@ function stopCamera() {
   errorDiv.textContent = '';
 }
 
-// Event listeners
-startBtn.addEventListener('click', startCamera);
-stopBtn.addEventListener('click', stopCamera);
+// Event listeners (somente se a página possuir todos os elementos necessários)
+if (startBtn && stopBtn && video) {
+  startBtn.addEventListener('click', startCamera);
+  stopBtn.addEventListener('click', stopCamera);
+}
 
 // Liberar a câmera se a página for fechada/recarregada
 window.addEventListener('beforeunload', () => {

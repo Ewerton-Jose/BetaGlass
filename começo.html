@@ -1,5 +1,37 @@
-        <div id="intro">
-            <p>
-                Olá amigo(a), esse app serve para ensinar robótica a partir de sua camêra, então é importante que você <strong>deixe ela estabilizada</strong> quando for <strong> Apontar para o(s) objeto(s). No máximo 3! Vamos pedir a permissão dee sua câmera na próxima etapa</strong>
-            </p>
-        </div>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Introdução • BetaGlass</title>
+    <link rel="stylesheet" href="index.css" />
+    <style>
+        /* Ajustes leves específicos desta página */
+        .intro-wrap{max-width:900px;margin:0 auto;padding:clamp(16px,4vw,32px)}
+        .intro-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:clamp(16px,4vw,28px);backdrop-filter:blur(2px)}
+        .intro-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+        .intro-actions a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+    </style>
+    <meta name="description" content="App educativo que usa a câmera para ensinar robótica. Mantenha o dispositivo estável e aponte para até 3 objetos." />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0f1724" />
+  
+</head>
+<body>
+    <main class="intro-wrap">
+        <section class="intro-card" aria-labelledby="intro-title">
+            <h1 id="intro-title" style="margin-bottom:8px">Bem-vindo ao BetaGlass</h1>
+            <div id="intro">
+                <p style="line-height:1.6">
+                    Olá amigo(a)! Este app serve para ensinar robótica a partir da sua câmera. É importante que você 
+                    <strong>mantenha o dispositivo estabilizado</strong> quando for <strong>apontar para o(s) objeto(s)</strong> (no máximo 3).
+                    Vamos pedir a permissão da câmera na próxima etapa.
+                </p>
+            </div>
+            <div class="intro-actions">
+                <a href="index.html"><button id="goNextBtn">Ir para a câmera</button></a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

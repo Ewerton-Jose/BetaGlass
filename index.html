@@ -3,78 +3,124 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fundo da Câmera</title>
+  <title>Detecção • BetaGlass</title>
   <link rel="stylesheet" href="index.css" />
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+    .app-wrapper{position:fixed; inset:0; display:block;}
+    .stage{position:fixed; inset:0; padding:0; margin:0;}
+    /* Container em tela cheia com recorte (cover) sem distorcer */
+    #webcam-container{position:fixed; inset:0; width:100vw; height:100dvh; overflow:hidden}
+    /* O tamanho do canvas será ajustado via JS para manter proporção (cover) */
+    #webcam-container canvas{ display:block; border-radius:0; }
+    /* Botão central sobre o vídeo */
+    .center-start{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:10}
+    #startBtn{z-index:11}
+    /* Overlay da melhor predição */
+    #top-prediction{
+      position:fixed; left:0; bottom:calc(env(safe-area-inset-bottom) + 0px);
+      width:100%; background:rgba(0,0,0,.55);
+      padding:10px 14px; font-size:clamp(14px,4vw,18px); font-weight:600;
+      backdrop-filter:blur(2px); z-index:9; text-align:center;
+    }
+    .hidden{display:none !important}
+  </style>
 </head>
 <body>
-  <main>
-
-    <div id="webcam-container"></div> 
-
-    <div class="controls">
-      <button id="startBtn" onclick="init()">Começar</button>
-      
+  <div class="app-wrapper">
+    <main class="stage">
+      <div id="webcam-container" aria-live="polite" aria-label="Visualização da câmera"></div>
+      <div class="center-start"><button id="startBtn">Começar</button></div>
       <div id="error" class="error" role="status" aria-live="assertive"></div>
-    </div>
-  </main>
-  <div id="label-container"></div>
-
-  <script src="script.js"></script>
-</body>
-</html>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-<script type="text/javascript">
-    // More API functions here:
-    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
-
-    // the link to your model provided by Teachable Machine export panel
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <script>
     const URL = "https://teachablemachine.withgoogle.com/models/5aXNg7B01/";
+    let model, webcam, maxPredictions;
+    const startBtn = document.getElementById('startBtn');
+    const errorDiv = document.getElementById('error');
+    const webcamContainer = document.getElementById('webcam-container');
+    let topDiv;
 
-    let model, webcam, labelContainer, maxPredictions;
+    function sizeCanvasCover(){
+      if (!webcam || !webcam.canvas) return;
+      const canvas = webcam.canvas;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let vidW = 640, vidH = 480;
+      try {
+        const v = webcam.webcam || webcam.video || null;
+        if (v && v.videoWidth && v.videoHeight) { vidW = v.videoWidth; vidH = v.videoHeight; }
+      } catch {}
+      const arVideo = vidW / vidH;
+      const arViewport = vw / vh;
+      if (arViewport > arVideo) {
+        // viewport mais largo que o vídeo -> expandir largura, ajustar altura automaticamente (corta em cima/baixo)
+        canvas.style.width = vw + 'px';
+        canvas.style.height = 'auto';
+      } else {
+        // viewport mais alto/estreito -> expandir altura, ajustar largura automaticamente (corta nas laterais)
+        canvas.style.height = vh + 'px';
+        canvas.style.width = 'auto';
+      }
+      canvas.style.position = 'absolute';
+      canvas.style.top = '50%';
+      canvas.style.left = '50%';
+      canvas.style.transform = 'translate(-50%, -50%)';
+    }
 
-    // Load the image model and setup the webcam
-    async function init() {
-        const modelURL = URL + "model.json";
-        const metadataURL = URL + "metadata.json";
-
-        // load the model and metadata
-        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-        // or files from your local hard drive
-        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
-        model = await tmImage.load(modelURL, metadataURL);
+    async function init(){
+      startBtn.classList.add('hidden');
+      errorDiv.textContent = '';
+      try {
+        model = await tmImage.load(URL + 'model.json', URL + 'metadata.json');
         maxPredictions = model.getTotalClasses();
-
-        // Convenience function to setup a webcam
-        const flip = true; // whether to flip the webcam
-        webcam = new tmImage.Webcam(1000,1000, flip); // width, height, flip
-        await webcam.setup(); // request access to the webcam
+        const flip = true;
+        // Tamanho inicial adaptável (pode crescer dentro do container via CSS)
+        webcam = new tmImage.Webcam(640, 480, flip);
+        await webcam.setup();
         await webcam.play();
         window.requestAnimationFrame(loop);
-
-        // append elements to the DOM
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
-        labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) { // and class labels
-            labelContainer.appendChild(document.createElement("div"));
+        webcamContainer.appendChild(webcam.canvas);
+        topDiv = document.createElement('div');
+        topDiv.id = 'top-prediction';
+        webcamContainer.appendChild(topDiv);
+        sizeCanvasCover();
+        window.addEventListener('resize', sizeCanvasCover);
+        window.addEventListener('orientationchange', sizeCanvasCover);
+      } catch(err){
+        startBtn.classList.remove('hidden');
+        if (err && err.name === 'NotAllowedError') {
+          errorDiv.textContent = 'Permissão negada: autorize o uso da câmera.';
+        } else if (err && err.name === 'NotFoundError') {
+          errorDiv.textContent = 'Nenhuma câmera encontrada.';
+        } else {
+          errorDiv.textContent = 'Erro ao inicializar: ' + (err.message || err);
         }
+      }
     }
 
-    async function loop() {
-        webcam.update(); // update the webcam frame
-        await predict();
-        window.requestAnimationFrame(loop);
+    async function loop(){
+      webcam.update();
+      await predictTop();
+      window.requestAnimationFrame(loop);
     }
 
-    // run the webcam image through the image model
-    async function predict() {
-        // predict can take in an image, video or canvas html element
-        const prediction = await model.predict(webcam.canvas);
-        for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-            labelContainer.childNodes[i].innerHTML = classPrediction;
+    async function predictTop(){
+      const prediction = await model.predict(webcam.canvas);
+      // Encontra maior prob.
+      let best = prediction[0];
+      for (let i=1;i<prediction.length;i++){
+        if (prediction[i].probability > best.probability){
+          best = prediction[i];
         }
+      }
+      topDiv.textContent = `${best.className} (${(best.probability*100).toFixed(1)}%)`;
     }
-</script>
+
+    startBtn.addEventListener('click', init);
+  </script>
+</body>
+</html>

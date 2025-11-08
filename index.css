@@ -1,17 +1,16 @@
 * {
-
-    margin: 0px;
-    padding: 0px;
-
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 
 :root{
-  --bg: #111;
+  --bg: #0f1724;
   --card: #fafafa;
 }
 
-*{box-sizing:border-box}
+html, body { height: 100%; }
 body{
   font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   background: linear-gradient(180deg,#0f1724,#071029);
@@ -20,6 +19,9 @@ body{
 
 main{
   text-align:center;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: clamp(12px, 3vw, 24px);
 }
 
 .fullscreen {
@@ -34,33 +36,38 @@ main{
 
 
 
-/* Vídeo cobre o container */
-video{
-top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: red;
-  object-fit:cover;
-  display:block;
+/* Mídias fluídas e container da câmera */
+img, canvas, video { max-width: 100%; height: auto; display: block; }
+
+#webcam-container{ width: 100%; display: grid; place-items: center; }
+#webcam-container canvas,
+#webcam-container video{
+  width: 100%;
+  height: auto;
+  max-height: 82vh;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
 
 /* controles */
-
+.controls{ margin-top: 16px; display:flex; justify-content:center; gap:12px; flex-wrap: wrap; }
 
 button{
   background:#16a34a;
   color:white;
-  padding:150px 150px;
-  border-radius:100%;
+  padding: 12px 18px;
+  border-radius: 12px;
   cursor:pointer;
-  font-weight:800;
-  min-width: 50%;
-  font-size: 100%;
-  margin-top: -80%;
-
+  font-weight:700;
+  font-size: 1rem;
+  line-height: 1;
+  border: none;
+  min-height: 44px; /* alvo amigável ao toque */
+  transition: transform .08s ease, filter .2s ease;
 }
+button:hover{ filter: brightness(1.05); }
+button:active{ transform: translateY(1px) scale(.99); }
 
 button[disabled]{
   opacity:0.45;
@@ -70,6 +77,33 @@ button[disabled]{
 .error{
   color:#ffb4b4;
   margin-top:8px;
-  font-size:13px;
+  font-size:14px;
   min-height:18px;
+}
+
+/* Resultados/predições */
+#label-container{ 
+  margin: 12px auto 0; 
+  text-align: left; 
+  display: grid; 
+  gap: 6px; 
+  font-size: clamp(14px, 2.6vw, 16px);
+  max-width: 960px;
+}
+
+/* Breakpoints */
+@media (min-width: 480px){
+  #webcam-container canvas, #webcam-container video{ max-height: 78vh; }
+}
+
+@media (min-width: 768px){
+  main{ padding: clamp(16px, 3vw, 32px); }
+  button{ font-size: 1.05rem; padding: 14px 22px; }
+}
+
+@media (min-width: 1024px){
+  /* Opcional: botão maior apenas no desktop */
+  .controls .primary-large{
+    width: 220px; height: 220px; border-radius: 999px; padding: 0; font-size: 1.1rem;
+  }
 }
