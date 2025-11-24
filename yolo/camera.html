@@ -4,17 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detecção de Objetos e Fala</title>
+    <link rel="stylesheet" href="camera.css">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-node"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 </head>
 <body>
-    <h1>Detecção de Objetos e Fala</h1>
+    <div class="app">
+        <div id="controls">
+            <button class="btn" onclick="history.back()">Voltar</button>
+        </div>
+        <div id="webcam-container">
+            <video id="video" playsinline autoplay></video>
+            <div id="top-prediction" class="hidden" aria-live="polite"></div>
+        </div>
+    </div>
+    <div id="detections" style="display:none"></div>
     
-    <video id="video" width="640" height="480" autoplay></video>
-    <div id="detections"></div>
-    
-    <script src="script.js"></script>
+    <script src="camera.js"></script>
 </body>
 </html>

@@ -122,7 +122,10 @@
       topDiv.textContent = `${best.className} (${(best.probability*100).toFixed(1)}%)`;
     }
 
-    startBtn.addEventListener('click', init);
+    startBtn.addEventListener('click', () => {
+      // Redireciona para a página da câmera dentro da pasta yolo
+      window.location.href = 'yolo/camera.html';
+    });
     async function validateBackCamera(){
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
