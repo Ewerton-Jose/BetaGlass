@@ -1,0 +1,40 @@
+{
+  "microcontroladores": {
+    "Arduino Uno/Leo": {
+      "descricao": "Esse é um Arduino Uno (ou Leonardo). É um microcontrolador padrão e muito comum, sem muitos módulos internos, mas possui enorme compatibilidade e muitos projetos disponíveis."
+    },
+    "Esp32": {
+      "descricao": "Esse é um ESP32, um microcontrolador moderno que já vem com Wi-Fi e Bluetooth embutidos, facilitando a comunicação com outros dispositivos e IoT."
+    },
+    "Arduino Nano": {
+      "descricao": "Esse é um Arduino Nano, um microcontrolador pequeno e compacto, sem módulos internos, ideal para projetos com pouco espaço."
+    },
+    "Arduino Mega": {
+      "descricao": "Esse é um Arduino Mega, um microcontrolador com muito mais pinos digitais e analógicos que o Uno, ideal para projetos grandes que precisam de muitas entradas e saídas."
+    }
+  },
+
+  "corigas": {
+    "Jumpers/Resistores/Capacitores/Pilhas/Baterias/Cases": {
+      "descricao": "Esse objeto é um coringa. Pode ser utilizado em praticamente qualquer tipo de projeto eletrônico."
+    }
+  },
+
+  "motores": {
+    "Motor de passo": {
+      "descricao": "Esse é um motor de passo, usado para movimentos precisos e controlados, como em impressoras 3D, CNC e robôs."
+    },
+    "Motor 130/DC/amarelinho": {
+      "descricao": "Esse é um motor DC 130, muito usado em carrinhos simples, ventiladores pequenos e projetos de robótica iniciante."
+    },
+    "Motor N20": {
+      "descricao": "Esse é um motor N20, um motor pequeno porém forte, usado em robôs compactos, fechaduras eletrônicas e mecanismos que exigem torque em pouco espaço."
+    }
+  },
+
+  "outros": {
+    "Protoboard": {
+      "descricao": "Usada para montar circuitos temporários sem solda, permitindo testar conexões e componentes antes de montar o circuito final."
+    }
+  }
+}
