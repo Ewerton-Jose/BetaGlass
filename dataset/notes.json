@@ -1,0 +1,25 @@
+{
+  "categories": [
+    {
+      "id": 0,
+      "name": "Arduino"
+    },
+    {
+      "id": 1,
+      "name": "Esp32"
+    },
+    {
+      "id": 2,
+      "name": "Jumpers"
+    },
+    {
+      "id": 3,
+      "name": "Protoboard"
+    }
+  ],
+  "info": {
+    "year": 2025,
+    "version": "1.0",
+    "contributor": "Label Studio"
+  }
+}

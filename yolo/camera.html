@@ -6,9 +6,11 @@
     <title>Detecção de Objetos e Fala</title>
     <link rel="stylesheet" href="camera.css">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-node"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <!-- Se você exportar um modelo TFJS coloque em dataset/model/model.json -->
+    <!-- ONNX Runtime Web para carregar modelos .onnx no navegador -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
 </head>
 <body>
     <div class="app">
