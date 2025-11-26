@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboticHelp</title>
+  <style>
+    :root{
+      --bg:#071833; /* fundo escuro azul */
+      --card-top:#0b3b63;
+      --card-bot:#06283f;
+      --accent:#1e90ff;
+      --muted:#bcd6ff;
+    }
+    *{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--muted);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    header {
+      background-image: linear-gradient(rgba(5,12,30,0.6), rgba(2,10,28,0.6)), url("logo.jpeg");
+      background-position: center;
+      height: 50vh;
+      min-height:280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+    }
+
+    header h1{
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin:0;
+      letter-spacing:1px;
+      color:#fff;
+      text-shadow:0 6px 30px rgba(0,0,0,0.6);
+    }
+
+    main{max-width:1200px;margin: -60px auto 40px;padding:0 20px}
+
+    .section-card{
+      display:flex;
+      gap:28px;
+      align-items:center;
+      background: linear-gradient(180deg,var(--card-top),var(--card-bot));
+      border-radius:14px;
+      padding:28px;
+      margin-bottom:22px;
+      box-shadow: 0 12px 40px rgba(2,12,30,0.5);
+      color: #eaf6ff;
+      overflow:hidden;
+    }
+
+    .section-card .text{
+      flex:1 1 60%;
+    }
+
+    .section-card h2{margin:0 0 10px;font-size:1.6rem;color:var(--accent)}
+    .section-card p{margin:0;line-height:1.5;color:var(--muted)}
+
+    .section-card img{
+      width:360px;
+      height:220px;
+      object-fit:cover;
+      border-radius:10px;
+      flex:0 0 360px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      border:3px solid rgba(255,255,255,0.03);
+    }
+
+    /* strip com 3 imagens apenas (sem texto) */
+    .image-only-strip{
+      display:flex;
+      gap:18px;
+      margin:26px 0 40px;
+      align-items:center;
+      justify-content:center;
+    }
+    .image-only-strip img{
+      width:32%;
+      height:220px;
+      object-fit:cover;
+      border-radius:12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      border:4px solid rgba(255,255,255,0.03);
+    }
+
+    footer{
+      text-align:center;
+      padding:22px 12px;
+      color:#dbeeff;
+      background:linear-gradient(90deg,#05233a,#0b2a4a);
+      border-top:1px solid rgba(255,255,255,0.02);
+    }
+
+    /* responsivo */
+    @media (max-width:900px){
+      .section-card{flex-direction:column;align-items:flex-start;padding:20px}
+      .section-card img{width:100%;height:200px;flex:0 0 auto}
+      .image-only-strip{flex-direction:column}
+      .image-only-strip img{width:100%;height:180px}
+      main{margin-top:-30px}
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1></h1>
+  </header>
+
+  <main>
+    <section class="section-card">
+      <div class="text">
+        <h2>Baixa Visão e Robótica</h2>
+        <p>A RoboticHelp nasce para aproximar alunos de <strong>baixa visão</strong> ao mundo da robótica, hoje no recife em partes da região metropolitana do Recife, já é uma realidade o ensino de robótica para todos os tipos de jovens, mas os alunos com baixa visão acabem sendo deixado de lado. com isso desenvolvemos um app/site responsávelpara auxíliar esses jovens .</p>
+      </div>
+      <img src="exemple1.jpeg" alt="Nossa ideia">
+    </section>
+
+    <section class="section-card">
+      <div class="text">
+        <h2>Nosso App</h2>
+        <p>Treinamos uma ia, que é capaz de identificar peças de robótica em tempo real e explicar sua funcionalidade para o estudante a partir do aúdio, assim fazendo que ele possa ter o seu protagonismo.</p>
+      </div>
+      <img src="treino3.png" alt="Nosso app">
+    </section>
+
+    <!-- strip só com 3 imagens (apenas imagens, conforme pediu) -->
+    <div class="image-only-strip">
+      <img src="treino.png" alt="imagem 1">
+      <img src="treino2.png" alt="imagem 2">
+    </div>
+
+  </main>
+
+  <footer>
+    © 2025 RoboticHelp — Criando tecnologia para aproximar pessoas.
+  </footer>
+</body>
+</html>
