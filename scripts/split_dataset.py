@@ -18,7 +18,7 @@ from pathlib import Path
 
 def parse_args():
     p = argparse.ArgumentParser(description='Split YOLO dataset into train/val')
-    p.add_argument('--dataset', type=str, default='dataset', help='Path to dataset folder')
+    p.add_argument('--dataset', type=str, default='dataset2', help='Path to dataset folder')
     p.add_argument('--train-ratio', type=float, default=0.8, help='Fraction of samples for training')
     p.add_argument('--seed', type=int, default=42, help='Random seed')
     p.add_argument('--move', action='store_true', help='Move files instead of copy')

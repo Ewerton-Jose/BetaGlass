@@ -1,0 +1,12 @@
+train: dataset2/train/images
+val: dataset2/val/images
+
+# número de classes
+nc: 4
+
+# nomes das classes (ordem deve corresponder aos ids nos labels)
+names:
+  - Arduino
+  - Esp32
+  - Jumpers
+  - Protoboard

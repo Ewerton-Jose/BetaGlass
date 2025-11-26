@@ -1,9 +1,81 @@
 // Função para iniciar a captura da câmera
-async function setupCamera() {
+// preferRear: ao pedir true, tenta priorizar a câmera traseira (environment) em dispositivos móveis
+async function setupCamera(preferRear = false) {
     const video = document.getElementById('video');
-    const stream = await navigator.mediaDevices.getUserMedia({
-        video: true
-    });
+    // Verifica disponibilidade de getUserMedia com fallbacks legados
+    const hasModern = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    let stream = null;
+    if (!hasModern) {
+        // tenta APIs legadas
+        const getUserMediaLegacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        if (getUserMediaLegacy) {
+            stream = await new Promise((resolve, reject) => {
+                getUserMediaLegacy.call(navigator, { video: true }, resolve, reject);
+            });
+        } else {
+            const msg = 'getUserMedia não disponível. Abra a página via http(s) em um navegador compatível e permita acesso à câmera.';
+            console.error(msg);
+            // Mostra mensagem na UI
+            const topDiv = document.getElementById('top-prediction');
+            if (topDiv) {
+                topDiv.textContent = msg;
+                topDiv.classList.remove('hidden');
+            }
+            throw new Error(msg);
+        }
+    } else {
+        // Estratégia: se preferRear, primeiro tenta facingMode ideal 'environment', senão uso simples {video:true}
+        try {
+            if (preferRear) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+                } catch (e) {
+                    // alguns navegadores podem rejeitar facingMode exact/ideal; tentaremos enumeração de dispositivos
+                    console.warn('Tentativa facingMode failed, tentando enumerateDevices fallback:', e);
+                }
+            }
+
+            // Se ainda não pegou stream, tenta a chamada genérica (pode pedir front camera)
+            if (!stream) {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            }
+
+            // Verifica se queremos forçar a traseira e o stream atual parece ser a câmera frontal
+            if (preferRear && stream && stream.getVideoTracks && stream.getVideoTracks().length) {
+                const track = stream.getVideoTracks()[0];
+                // tenta inferir se é frontal via label (após permissão labels podem ser preenchidas)
+                const label = track.label || '';
+                if (/front|front camera|front-facing|frontal|selfie/i.test(label)) {
+                    // libera este stream e tenta escolher deviceId que pareça traseiro
+                    try { stream.getTracks().forEach(t=>t.stop()); } catch(e){}
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const cams = devices.filter(d => d.kind === 'videoinput');
+                    // procura por labels que indiquem traseira
+                    let rear = cams.find(c => /back|rear|traseira|environment/i.test(c.label));
+                    if (!rear && cams.length > 1) rear = cams[cams.length - 1]; // fallback: pega último da lista
+                    if (rear) {
+                        try {
+                            stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: rear.deviceId } } });
+                        } catch (e) {
+                            console.warn('Falha ao abrir deviceId traseiro, mantendo stream atual:', e);
+                            // tenta reabrir stream genérico
+                            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('Erro ao acessar câmera com mediaDevices:', err);
+            const msg = 'Erro ao acessar câmera: ' + String(err);
+            const topDiv = document.getElementById('top-prediction');
+            if (topDiv) {
+                topDiv.textContent = msg;
+                topDiv.classList.remove('hidden');
+            }
+            throw err;
+        }
+    }
+
     video.srcObject = stream;
     return new Promise((resolve) => {
         video.onloadedmetadata = () => resolve(video);
@@ -73,10 +145,15 @@ async function loadClassMap() {
 
 // Função para carregar o modelo (ONNX primeiro, depois TFJS, depois fallback)
 async function loadModel() {
-    // 1) Tenta ONNX em /dataset/model.onnx
-    const onnxUrl = '/dataset/model.onnx';
+    // 1) Tenta ONNX em /dataset2/model.onnx primeiro, depois em /dataset/model.onnx
+    let onnxUrl = '/dataset2/model.onnx';
     try {
-        const respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
+        let respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
+        if (!(respOnnx && respOnnx.ok)) {
+            // tenta fallback para dataset
+            onnxUrl = '/dataset/model.onnx';
+            respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
+        }
         if (respOnnx && respOnnx.ok) {
             if (!window.ort) {
                 console.warn('ONNX Runtime não encontrado no contexto global (ort). Verifique camera.html.');
@@ -191,7 +268,8 @@ function preprocessForOnnx(video, inputMeta) {
 }
 
 // Função para detectar objetos
-async function detectObjects(wrapper, video) {
+async function detectObjects(wrapper, video, options = {}) {
+    const forceSpeak = options && options.forceSpeak === true;
     if (wrapper.type === 'coco') {
         const predictions = await wrapper.model.detect(video);
 
@@ -212,9 +290,9 @@ async function detectObjects(wrapper, video) {
             const name = getClassName(p.class);
             lastSeen[name] = now;
             seenThisFrame.add(name);
-            if (!spoken.has(name)) {
-                // fala o nome da classe com a confiança
-                speakOutLoud(name, p.score);
+            if (forceSpeak || !spoken.has(name)) {
+                // fala o nome da classe; se for acionado manualmente fala só o nome
+                if (forceSpeak) speakName(name); else speakOutLoud(name, p.score);
                 spoken.add(name);
             }
         });
@@ -470,8 +548,8 @@ async function detectObjects(wrapper, video) {
                 const name = getClassName(d.class);
                 lastSeen[name] = now;
                 seenThisFrame.add(name);
-                if (!spoken.has(name)) {
-                    speakOutLoud(name, d.score);
+                if (forceSpeak || !spoken.has(name)) {
+                    if (forceSpeak) speakName(name); else speakOutLoud(name, d.score);
                     spoken.add(name);
                 }
             });
@@ -607,8 +685,8 @@ async function detectObjects(wrapper, video) {
             const name = getClassName(d.class);
             lastSeen[name] = now;
             seenThisFrame.add(name);
-            if (!spoken.has(name)) {
-                speakOutLoud(name, d.score);
+            if (forceSpeak || !spoken.has(name)) {
+                if (forceSpeak) speakName(name); else speakOutLoud(name, d.score);
                 spoken.add(name);
             }
         });
@@ -664,14 +742,98 @@ function speakOutLoud(text, confidence = null) {
         // fala o nome e a confiança arredondada
         phrase = `${phrase}, ${(confidence * 100).toFixed(0)} por cento`;
     }
-    const utterance = new SpeechSynthesisUtterance(phrase);
-    utterance.lang = 'pt-BR';
-    window.speechSynthesis.speak(utterance);
+
+    const utter = new SpeechSynthesisUtterance(phrase);
+    utter.lang = 'pt-BR';
+
+    // Escolhe voz preferida: busca vozes com 'Google' e pt-BR, senão qualquer voz pt, senão fallback
+    function chooseVoice() {
+        const voices = window.speechSynthesis.getVoices() || [];
+        if (!voices || voices.length === 0) return null;
+        // Prefer voices containing 'Google' and Portuguese
+        let v = voices.find(vv => /google/i.test(vv.name) && /pt/i.test(vv.lang));
+        if (!v) v = voices.find(vv => /google/i.test(vv.name));
+        if (!v) v = voices.find(vv => /^pt/.test(vv.lang));
+        if (!v) v = voices[0];
+        return v;
+    }
+
+    const voice = chooseVoice();
+    if (voice) {
+        utter.voice = voice;
+        window.speechSynthesis.speak(utter);
+    } else {
+        // se ainda não há vozes carregadas, aguarda o evento onvoiceschanged
+        const onvoices = () => {
+            try {
+                const v2 = chooseVoice();
+                if (v2) utter.voice = v2;
+                window.speechSynthesis.speak(utter);
+            } finally {
+                window.speechSynthesis.removeEventListener('voiceschanged', onvoices);
+            }
+        };
+        window.speechSynthesis.addEventListener('voiceschanged', onvoices);
+        // timeout fallback: se não chegar vozes em 1s, fala sem voice específica
+        setTimeout(() => {
+            if (!utter.voice) {
+                try { window.speechSynthesis.speak(utter); } catch(e){}
+                window.speechSynthesis.removeEventListener('voiceschanged', onvoices);
+            }
+        }, 1000);
+    }
+}
+
+// Fala apenas o nome (sem confiança) — útil para o botão 'Identificar'
+function speakName(text) {
+    const utter = new SpeechSynthesisUtterance(String(text));
+    utter.lang = 'pt-BR';
+
+    function chooseVoice() {
+        const voices = window.speechSynthesis.getVoices() || [];
+        if (!voices || voices.length === 0) return null;
+        let v = voices.find(vv => /google/i.test(vv.name) && /pt/i.test(vv.lang));
+        if (!v) v = voices.find(vv => /google/i.test(vv.name));
+        if (!v) v = voices.find(vv => /^pt/.test(vv.lang));
+        if (!v) v = voices[0];
+        return v;
+    }
+
+    const voice = chooseVoice();
+    if (voice) {
+        utter.voice = voice;
+        window.speechSynthesis.speak(utter);
+    } else {
+        const onvoices = () => {
+            try {
+                const v2 = chooseVoice();
+                if (v2) utter.voice = v2;
+                window.speechSynthesis.speak(utter);
+            } finally {
+                window.speechSynthesis.removeEventListener('voiceschanged', onvoices);
+            }
+        };
+        window.speechSynthesis.addEventListener('voiceschanged', onvoices);
+        setTimeout(() => {
+            if (!utter.voice) {
+                try { window.speechSynthesis.speak(utter); } catch(e){}
+                window.speechSynthesis.removeEventListener('voiceschanged', onvoices);
+            }
+        }, 1000);
+    }
 }
 
 // Função para inicializar o sistema
 async function init() {
-    const video = await setupCamera();  // Inicia a câmera
+    let video;
+    try {
+        // preferRear=true tenta usar a câmera traseira em celulares
+        video = await setupCamera(true);  // Inicia a câmera
+    } catch (err) {
+        console.error('Falha ao iniciar a câmera:', err);
+        // Mensagem já foi escrita em setupCamera; apenas saímos sem lançar erro não tratado
+        return;
+    }
     // Carrega mapa de classes (notes.json / classes.txt) antes de tentar carregar modelo
     await loadClassMap();
 
@@ -679,10 +841,27 @@ async function init() {
     // Isso é normal — coloque seu TFJS `model.json` em `dataset/model/model.json` para evitar 404.
     const model = await loadModel();    // Carrega o modelo de detecção (TFJS ou fallback coco-ssd)
 
-    // A cada 1000ms (1 segundo), detecta objetos na imagem da câmera
-    setInterval(() => {
-        detectObjects(model, video);
-    }, 1000);
+    // Botão "Identificar": captura o frame atual e executa detecção uma vez
+    const identifyBtn = document.getElementById('identify-btn');
+    if (identifyBtn) {
+        identifyBtn.addEventListener('click', async () => {
+            // opcional: feedback visual rápido
+            identifyBtn.disabled = true;
+            identifyBtn.textContent = 'Detectando...';
+            try {
+                await detectObjects(model, video, {forceSpeak: true});
+            } catch (err) {
+                console.error('Erro ao executar detecção ao clicar:', err);
+            }
+            identifyBtn.textContent = 'Identificar';
+            identifyBtn.disabled = false;
+        });
+    } else {
+        // Fallback: se botão não existir, executar detecção periódica (compatibilidade)
+        setInterval(() => {
+            detectObjects(model, video);
+        }, 1000);
+    }
 }
 
 // Inicializa o sistema
