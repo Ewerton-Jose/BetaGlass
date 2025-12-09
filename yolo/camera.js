@@ -106,49 +106,63 @@ function prettyNameForDisplay(cls) {
 }
 
 async function loadClassMap() {
-    // Tenta notes.json
-    try {
-        const resp = await fetch('/dataset/notes.json');
-        if (resp.ok) {
-            const json = await resp.json();
-            if (json && Array.isArray(json.categories)) {
+    // Tenta dataset3, depois dataset2, depois dataset (notes.json ou classes.txt)
+    const candidateBases = ['/dataset3', '/dataset2', '/dataset'];
+    for (const base of candidateBases) {
+        // notes.json
+        try {
+            const resp = await fetch(`${base}/notes.json`);
+            if (resp.ok) {
+                const json = await resp.json();
+                if (json && Array.isArray(json.categories)) {
+                    const map = {};
+                    json.categories.forEach(cat => { map[cat.id] = cat.name; });
+                    console.log(`CLASS_MAP carregado de ${base}/notes.json:`, map);
+                    CLASS_MAP = map;
+                    return CLASS_MAP;
+                }
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        // classes.txt
+        try {
+            const resp2 = await fetch(`${base}/classes.txt`);
+            if (resp2.ok) {
+                const text = await resp2.text();
+                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
                 const map = {};
-                json.categories.forEach(cat => { map[cat.id] = cat.name; });
-                console.log('CLASS_MAP carregado de /dataset/notes.json:', map);
+                lines.forEach((name, idx) => { map[idx] = name; });
+                console.log(`CLASS_MAP carregado de ${base}/classes.txt:`, map);
                 CLASS_MAP = map;
                 return CLASS_MAP;
             }
+        } catch (e) {
+            // ignore
         }
-    } catch (e) {
-        // ignore
     }
 
-    // Tenta classes.txt (uma classe por linha)
-    try {
-        const resp2 = await fetch('/dataset/classes.txt');
-        if (resp2.ok) {
-            const text = await resp2.text();
-            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-            const map = {};
-            lines.forEach((name, idx) => { map[idx] = name; });
-            console.log('CLASS_MAP carregado de /dataset/classes.txt:', map);
-            CLASS_MAP = map;
-            return CLASS_MAP;
-        }
-    } catch (e) {
-        // ignore
-    }
-
-    console.warn('Nenhum mapa de classes encontrado (notes.json ou classes.txt). Classe reais podem aparecer como índices.');
-    return null;
+    // Fallback fixo: nomes do dataset3 (evita 'Desconhecido' na UI)
+    const defaultNames = ['Arduino', 'Esp32', 'Jumpers', 'Protoboard'];
+    const map = {};
+    defaultNames.forEach((name, idx) => { map[idx] = name; });
+    console.warn('Nenhum mapa de classes encontrado (notes.json ou classes.txt). Usando fallback fixo do dataset3:', map);
+    CLASS_MAP = map;
+    return CLASS_MAP;
 }
 
 // Função para carregar o modelo (ONNX primeiro, depois TFJS, depois fallback)
 async function loadModel() {
-    // 1) Tenta ONNX em /dataset2/model.onnx primeiro, depois em /dataset/model.onnx
-    let onnxUrl = '/dataset2/model.onnx';
+    // 1) Tenta ONNX em /dataset3/model.onnx primeiro, depois /dataset2/model.onnx, depois /dataset/model.onnx
+    let onnxUrl = '/dataset3/model.onnx';
     try {
         let respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
+        if (!(respOnnx && respOnnx.ok)) {
+            // tenta dataset2
+            onnxUrl = '/dataset2/model.onnx';
+            respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
+        }
         if (!(respOnnx && respOnnx.ok)) {
             // tenta fallback para dataset
             onnxUrl = '/dataset/model.onnx';
@@ -841,11 +855,10 @@ async function init() {
     // Isso é normal — coloque seu TFJS `model.json` em `dataset/model/model.json` para evitar 404.
     const model = await loadModel();    // Carrega o modelo de detecção (TFJS ou fallback coco-ssd)
 
-    // Botão "Identificar": captura o frame atual e executa detecção uma vez
+    // Botão "Identificar": ainda disponível para uma captura manual
     const identifyBtn = document.getElementById('identify-btn');
     if (identifyBtn) {
         identifyBtn.addEventListener('click', async () => {
-            // opcional: feedback visual rápido
             identifyBtn.disabled = true;
             identifyBtn.textContent = 'Detectando...';
             try {
@@ -856,12 +869,13 @@ async function init() {
             identifyBtn.textContent = 'Identificar';
             identifyBtn.disabled = false;
         });
-    } else {
-        // Fallback: se botão não existir, executar detecção periódica (compatibilidade)
-        setInterval(() => {
-            detectObjects(model, video);
-        }, 1000);
     }
+
+    // Loop de detecção contínua: roda a cada ~1s (ajuste se quiser mais rápido)
+    const DETECT_INTERVAL_MS = 1000;
+    setInterval(() => {
+        detectObjects(model, video);
+    }, DETECT_INTERVAL_MS);
 }
 
 // Inicializa o sistema
