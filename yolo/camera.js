@@ -93,7 +93,13 @@ let CLASS_MAP = null;
 // Base path para ambientes servidos via GitHub Pages (camera.html em /yolo/)
 const BASE_PATH = (() => {
     const path = (typeof window !== 'undefined' && window.location && window.location.pathname) ? window.location.pathname : '';
-    if (path.includes('/yolo/')) return '../';
+    // Se estiver em /BetaGlass/yolo/ (GitHub Pages) ou /yolo/ (local), sobe um nível
+    if (path.includes('/yolo/')) {
+        // Extrai o caminho base até /yolo/ e remove /yolo/ para pegar a raiz do projeto
+        const baseMatch = path.match(/^(.*?)\/yolo\//);
+        if (baseMatch) return baseMatch[1] + '/';
+        return '../';
+    }
     return './';
 })();
 
