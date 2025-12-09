@@ -90,6 +90,13 @@ const lastSeen = {};
 // Mapa de classes carregado a partir de dataset/notes.json ou dataset/classes.txt
 let CLASS_MAP = null;
 
+// Base path para ambientes servidos via GitHub Pages (camera.html em /yolo/)
+const BASE_PATH = (() => {
+    const path = (typeof window !== 'undefined' && window.location && window.location.pathname) ? window.location.pathname : '';
+    if (path.includes('/yolo/')) return '../';
+    return './';
+})();
+
 function getClassName(cls) {
     if (cls === null || cls === undefined) return String(cls);
     const asNum = Number(cls);
@@ -107,7 +114,7 @@ function prettyNameForDisplay(cls) {
 
 async function loadClassMap() {
     // Tenta dataset3, depois dataset2, depois dataset (notes.json ou classes.txt)
-    const candidateBases = ['/dataset3', '/dataset2', '/dataset'];
+    const candidateBases = [`${BASE_PATH}dataset3`, `${BASE_PATH}dataset2`, `${BASE_PATH}dataset`];
     for (const base of candidateBases) {
         // notes.json
         try {
@@ -154,18 +161,18 @@ async function loadClassMap() {
 
 // Função para carregar o modelo (ONNX primeiro, depois TFJS, depois fallback)
 async function loadModel() {
-    // 1) Tenta ONNX em /dataset3/model.onnx primeiro, depois /dataset2/model.onnx, depois /dataset/model.onnx
-    let onnxUrl = '/dataset3/model.onnx';
+    // 1) Tenta ONNX em dataset3/model.onnx primeiro, depois dataset2/model.onnx, depois dataset/model.onnx (usando BASE_PATH para GitHub Pages)
+    let onnxUrl = `${BASE_PATH}dataset3/model.onnx`;
     try {
         let respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
         if (!(respOnnx && respOnnx.ok)) {
             // tenta dataset2
-            onnxUrl = '/dataset2/model.onnx';
+            onnxUrl = `${BASE_PATH}dataset2/model.onnx`;
             respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
         }
         if (!(respOnnx && respOnnx.ok)) {
             // tenta fallback para dataset
-            onnxUrl = '/dataset/model.onnx';
+            onnxUrl = `${BASE_PATH}dataset/model.onnx`;
             respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
         }
         if (respOnnx && respOnnx.ok) {
@@ -193,8 +200,8 @@ async function loadModel() {
         // ignora
     }
 
-    // 2) Tenta TFJS model.json em /dataset/model/model.json
-    const modelUrl = '/dataset/model/model.json';
+    // 2) Tenta TFJS model.json em dataset/model/model.json
+    const modelUrl = `${BASE_PATH}dataset/model/model.json`;
     try {
         const resp = await fetch(modelUrl, { method: 'GET' });
         if (resp.ok) {
