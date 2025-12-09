@@ -1,4 +1,0 @@
-Arduino
-Esp32
-Jumpers
-Protoboard

@@ -1,0 +1,12 @@
+train: /home/otonielnn/Desktop/BetaGlass/dataset3/train/images
+val: /home/otonielnn/Desktop/BetaGlass/dataset3/val/images
+
+# número de classes
+nc: 4
+
+# nomes das classes (ordem deve corresponder aos ids nos labels)
+names:
+  - Arduino
+  - Esp32
+  - Jumpers
+  - Protoboard
