@@ -958,18 +958,13 @@ async function init() {
         });
     }
 
-    // Botão "Perguntar"
-    const askBtn = document.getElementById('ask-btn');
-    if (askBtn) {
-        askBtn.addEventListener('click', () => {
+    // Botão "Cancelar"
+    const cancelBtn = document.getElementById('cancel-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
             // Interrompe qualquer áudio em reprodução
             window.speechSynthesis.cancel();
-            
-            // Funcionalidade para Perguntar em desenvolvimento
-            const utterance = new SpeechSynthesisUtterance();
-            utterance.text = 'Funcionalidade de perguntar em desenvolvimento';
-            utterance.lang = 'pt-BR';
-            window.speechSynthesis.speak(utterance);
+            console.log('Áudio cancelado pelo usuário');
         });
     }
 
