@@ -11,6 +11,64 @@
     <!-- Se você exportar um modelo TFJS coloque em dataset/model/model.json -->
     <!-- ONNX Runtime Web para carregar modelos .onnx no navegador -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
+    <!-- OVERRIDE: botão "Identificar" grande, horizontal (pill) e arredondado -->
+    <style>
+      /* garante que os controles fiquem alinhados horizontalmente */
+      #controls {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        padding: 12px;
+        z-index: 20;
+      }
+
+      /* estilo base para botões, garante consistência */
+      #controls .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+        background: rgba(0,0,0,0.45);
+        transition: transform .12s ease, box-shadow .12s ease;
+      }
+
+      /* botão Identificar: grande, horizontal (mais largo que alto), arredondado (pill) e com fonte grande */
+      #identify-btn {
+        min-width: 280px;        /* largura mínima para ficar horizontal */
+        height: 76px;            /* altura grande */
+        padding: 0 28px;         /* espaço horizontal interno */
+        border-radius: 999px;    /* pill shape */
+        font-size: clamp(18px, 4.5vw, 34px); /* fonte responsiva e grande */
+        font-weight: 800;
+        letter-spacing: 1px;
+        background: linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+        box-shadow: 0 12px 30px rgba(102,126,234,0.28);
+      }
+
+      /* hover/active */
+      #identify-btn:hover:not(:disabled) { transform: translateY(-4px) scale(1.02); box-shadow: 0 18px 40px rgba(102,126,234,0.36); }
+      #identify-btn:active:not(:disabled) { transform: translateY(-1px) scale(0.995); }
+
+      /* torna o botão voltar menor e mais discreto, mantendo alinhamento horizontal */
+      #controls .btn:first-child {
+        min-width: 90px;
+        height: 56px;
+        border-radius: 14px;
+        font-size: clamp(14px, 3.5vw, 20px);
+        background: rgba(0,0,0,0.35);
+      }
+
+      /* responsividade: em telas muito pequenas mantém proporção horizontal */
+      @media (max-width: 420px) {
+        #identify-btn { min-width: 200px; height: 64px; font-size: clamp(16px, 5vw, 24px); }
+        #controls { gap: 8px; padding: 8px; }
+      }
+    </style>
 </head>
 <body>
     <div class="app">
