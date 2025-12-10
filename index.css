@@ -107,3 +107,140 @@ button[disabled]{
     width: 220px; height: 220px; border-radius: 999px; padding: 0; font-size: 1.1rem;
   }
 }
+
+/* ===== ESTILOS DA PÁGINA index.html ===== */
+
+/* Reset de html e body para fullscreen */
+html, body { 
+  height: 100%; 
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.app-wrapper{
+  position:fixed; 
+  inset:0; 
+  display:block;
+}
+
+.stage{
+  position:fixed; 
+  inset:0; 
+  padding:0; 
+  margin:0;
+}
+
+/* Container em tela cheia com recorte (cover) sem distorcer */
+#webcam-container{
+  position:fixed; 
+  inset:0; 
+  width:100vw; 
+  height:100dvh; 
+  overflow:hidden;
+}
+
+/* O tamanho do canvas será ajustado via JS para manter proporção (cover) */
+#webcam-container canvas{ 
+  display:block; 
+  border-radius:0; 
+}
+
+/* Botão central sobre o vídeo - GRANDE E HORIZONTAL 16:9 */
+.center-start{
+  position:fixed; 
+  inset:0; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  z-index:10;
+  padding: 20px;
+}
+
+#startBtn{
+  z-index:11;
+  /* Botão grande e horizontal - forçar landscape */
+  width: min(90vw, 90vh * 16/9);
+  height: min(90vh, 90vw * 9/16);
+  font-size: clamp(24px, 8vw, 64px);
+  font-weight: 700;
+  padding: 0;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  text-align: center;
+  padding: 20px;
+}
+
+#startBtn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+}
+
+#startBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+#startBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Overlay da melhor predição */
+#top-prediction{
+  position:fixed; 
+  left:0; 
+  bottom:calc(env(safe-area-inset-bottom) + 0px);
+  width:100%; 
+  background:rgba(0,0,0,.55);
+  padding:10px 14px; 
+  font-size:clamp(14px,4vw,18px); 
+  font-weight:600;
+  backdrop-filter:blur(2px); 
+  z-index:9; 
+  text-align:center;
+  color: white;
+}
+
+.hidden{
+  display:none !important;
+}
+
+/* Aviso de orientação */
+#orientation-warning {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#orientation-warning.show {
+  display: flex;
+}
+
+/* Forçar landscape em celulares */
+@media (max-aspect-ratio: 1/1) {
+  html {
+    transform: rotate(0deg);
+  }
+}

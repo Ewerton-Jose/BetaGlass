@@ -12,19 +12,26 @@
     <!-- ONNX Runtime Web para carregar modelos .onnx no navegador -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
 
-    <!-- OVERRIDE: botão "Identificar" grande, horizontal (pill) e arredondado -->
+    <!-- OVERRIDE: botões na parte inferior, horizontais -->
     <style>
-      /* garante que os controles fiquem alinhados horizontalmente */
+      /* Container dos botões na parte inferior */
       #controls {
+        position: fixed;
+        bottom: calc(env(safe-area-inset-bottom) + 12px);
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
-        gap: 12px;
+        gap: clamp(10px, 3vw, 20px);
         justify-content: center;
         align-items: center;
-        padding: 12px;
+        padding: 0 12px;
         z-index: 20;
+        width: calc(100% - 24px);
+        max-width: 1200px;
+        flex-wrap: wrap;
       }
 
-      /* estilo base para botões, garante consistência */
+      /* estilo base para botões */
       #controls .btn {
         display: inline-flex;
         align-items: center;
@@ -33,52 +40,67 @@
         border: none;
         cursor: pointer;
         color: #fff;
-        background: rgba(0,0,0,0.45);
         transition: transform .12s ease, box-shadow .12s ease;
+        font-weight: 700;
+        flex: 1;
+        min-width: 140px;
+        max-width: 380px;
+        border-radius: 16px;
+        padding: clamp(14px, 2.5vh, 22px) clamp(18px, 3vw, 32px);
+        font-size: clamp(15px, 3.5vw, 22px);
       }
 
-      /* botão Identificar: grande, horizontal (mais largo que alto), arredondado (pill) e com fonte grande */
+      /* botão Identificar: roxo */
       #identify-btn {
-        min-width: 280px;        /* largura mínima para ficar horizontal */
-        height: 76px;            /* altura grande */
-        padding: 0 28px;         /* espaço horizontal interno */
-        border-radius: 999px;    /* pill shape */
-        font-size: clamp(18px, 4.5vw, 34px); /* fonte responsiva e grande */
-        font-weight: 800;
-        letter-spacing: 1px;
-        background: linear-gradient(90deg,#667eea 0%,#764ba2 100%);
-        box-shadow: 0 12px 30px rgba(102,126,234,0.28);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.28);
+      }
+
+      /* botão Perguntar: rosa/vermelho */
+      #ask-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        box-shadow: 0 12px 30px rgba(245, 87, 108, 0.28);
+      }
+
+      /* botão Dicas: azul claro */
+      #tips-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        box-shadow: 0 12px 30px rgba(79, 172, 254, 0.28);
       }
 
       /* hover/active */
-      #identify-btn:hover:not(:disabled) { transform: translateY(-4px) scale(1.02); box-shadow: 0 18px 40px rgba(102,126,234,0.36); }
-      #identify-btn:active:not(:disabled) { transform: translateY(-1px) scale(0.995); }
-
-      /* torna o botão voltar menor e mais discreto, mantendo alinhamento horizontal */
-      #controls .btn:first-child {
-        min-width: 90px;
-        height: 56px;
-        border-radius: 14px;
-        font-size: clamp(14px, 3.5vw, 20px);
-        background: rgba(0,0,0,0.35);
+      #controls .btn:hover:not(:disabled) { 
+        transform: translateY(-4px) scale(1.02); 
+        box-shadow: 0 18px 40px rgba(102, 126, 234, 0.36); 
+      }
+      #controls .btn:active:not(:disabled) { 
+        transform: translateY(-1px) scale(0.995); 
       }
 
-      /* responsividade: em telas muito pequenas mantém proporção horizontal */
-      @media (max-width: 420px) {
-        #identify-btn { min-width: 200px; height: 64px; font-size: clamp(16px, 5vw, 24px); }
-        #controls { gap: 8px; padding: 8px; }
+      /* responsividade */
+      @media (max-width: 480px) {
+        #controls { 
+          gap: 8px; 
+          padding: 0 8px;
+        }
+        #controls .btn {
+          min-width: 110px;
+          padding: 12px 14px;
+          font-size: clamp(13px, 3vw, 18px);
+        }
       }
     </style>
 </head>
 <body>
     <div class="app">
-        <div id="controls">
-            <button class="btn" onclick="history.back()">Voltar</button>
-            <button id="identify-btn" class="btn primary">Identificar</button>
-        </div>
         <div id="webcam-container">
             <video id="video" playsinline autoplay></video>
             <div id="top-prediction" class="hidden" aria-live="polite"></div>
+        </div>
+        <div id="controls">
+            <button id="identify-btn" class="btn primary">▶ Identificar</button>
+            <button id="ask-btn" class="btn">❓ Perguntar</button>
+            <button id="tips-btn" class="btn">💡 Dicas</button>
         </div>
     </div>
     <div id="detections" style="display:none"></div>

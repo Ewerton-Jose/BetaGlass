@@ -879,8 +879,32 @@ async function init() {
             } catch (err) {
                 console.error('Erro ao executar detecção ao clicar:', err);
             }
-            identifyBtn.textContent = 'Identificar';
+            identifyBtn.textContent = '▶ Identificar';
             identifyBtn.disabled = false;
+        });
+    }
+
+    // Botão "Perguntar"
+    const askBtn = document.getElementById('ask-btn');
+    if (askBtn) {
+        askBtn.addEventListener('click', () => {
+            // Funcionalidade para Perguntar em desenvolvimento
+            const utterance = new SpeechSynthesisUtterance();
+            utterance.text = 'Funcionalidade de perguntar em desenvolvimento';
+            utterance.lang = 'pt-BR';
+            window.speechSynthesis.speak(utterance);
+        });
+    }
+
+    // Botão "Dicas"
+    const tipsBtn = document.getElementById('tips-btn');
+    if (tipsBtn) {
+        tipsBtn.addEventListener('click', () => {
+            // Funcionalidade para Dicas em desenvolvimento
+            const utterance = new SpeechSynthesisUtterance();
+            utterance.text = 'Dicas e tutoriais em desenvolvimento';
+            utterance.lang = 'pt-BR';
+            window.speechSynthesis.speak(utterance);
         });
     }
 
