@@ -48,7 +48,7 @@ html,body{
 #top-prediction{
   position:absolute;
   left:0;
-  bottom:calc(env(safe-area-inset-bottom) + 0px);
+  bottom:calc(env(safe-area-inset-bottom) + 80px);
   width:100%;
   background:var(--overlay);
   color:var(--text);
@@ -143,7 +143,11 @@ h1{
 
 /* pequenos ajustes responsivos */
 @media (max-width:480px){
-  #top-prediction{font-size:clamp(16px,6vw,28px);padding:14px}
+  #top-prediction{
+    font-size:clamp(16px,6vw,28px);
+    padding:14px;
+    bottom:calc(env(safe-area-inset-bottom) + 70px);
+  }
   #controls { gap: 8px; padding: 0 8px; }
   #controls .btn {
     min-width: 110px;
