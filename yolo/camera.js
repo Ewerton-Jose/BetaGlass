@@ -962,6 +962,9 @@ async function init() {
     const askBtn = document.getElementById('ask-btn');
     if (askBtn) {
         askBtn.addEventListener('click', () => {
+            // Interrompe qualquer áudio em reprodução
+            window.speechSynthesis.cancel();
+            
             // Funcionalidade para Perguntar em desenvolvimento
             const utterance = new SpeechSynthesisUtterance();
             utterance.text = 'Funcionalidade de perguntar em desenvolvimento';
