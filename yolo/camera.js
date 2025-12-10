@@ -1,5 +1,41 @@
 // Função para iniciar a captura da câmera
 // preferRear: ao pedir true, tenta priorizar a câmera traseira (environment) em dispositivos móveis
+
+// Armazena as falas customizadas
+let customPhrases = {};
+
+// Carrega falas do arquivo JSON
+async function loadCustomPhrases() {
+    try {
+        const response = await fetch('../falas.json');
+        if (response.ok) {
+            customPhrases = await response.json();
+            console.log('Falas customizadas carregadas:', customPhrases);
+        } else {
+            console.warn('Não foi possível carregar falas.json');
+        }
+    } catch (err) {
+        console.error('Erro ao carregar falas.json:', err);
+    }
+}
+
+// Função para buscar fala customizada baseada no nome do objeto
+function getCustomPhrase(objectName) {
+    // Procura em todas as categorias
+    for (const categoria in customPhrases) {
+        const items = customPhrases[categoria];
+        for (const itemName in items) {
+            // Verifica se o nome do objeto contém ou é similar ao nome no JSON
+            if (objectName.toLowerCase().includes(itemName.toLowerCase()) || 
+                itemName.toLowerCase().includes(objectName.toLowerCase())) {
+                return items[itemName].descricao;
+            }
+        }
+    }
+    // Se não encontrar, retorna null
+    return null;
+}
+
 async function setupCamera(preferRear = false) {
     const video = document.getElementById('video');
     // Verifica disponibilidade de getUserMedia com fallbacks legados
@@ -762,39 +798,60 @@ function displayPredictions(predictions) {
     }
 }
 
-// Função para síntese de voz
+// Função para síntese de voz (sem acurácia)
 function speakOutLoud(text, confidence = null) {
-    let phrase = String(text);
-    if (confidence !== null && !isNaN(confidence)) {
-        // fala o nome e a confiança arredondada
-        phrase = `${phrase}, ${(confidence * 100).toFixed(0)} por cento`;
-    }
-
+    // Busca fala customizada
+    const customPhrase = getCustomPhrase(text);
+    let phrase = customPhrase || String(text);
+    
+    // NÃO adiciona a confiança/acurácia
+    
     const utter = new SpeechSynthesisUtterance(phrase);
     utter.lang = 'pt-BR';
+    utter.rate = 1.0; // Velocidade da fala (0.1 a 10)
+    utter.pitch = 1.0; // Tom da voz (0 a 2)
+    utter.volume = 1.0; // Volume (0 a 1)
 
-    // Escolhe voz preferida: busca vozes com 'Google' e pt-BR, senão qualquer voz pt, senão fallback
+    // Escolhe voz preferida: busca vozes femininas portuguesas, senão masculinas, senão qualquer Google, senão fallback
     function chooseVoice() {
         const voices = window.speechSynthesis.getVoices() || [];
         if (!voices || voices.length === 0) return null;
-        // Prefer voices containing 'Google' and Portuguese
-        let v = voices.find(vv => /google/i.test(vv.name) && /pt/i.test(vv.lang));
+        
+        // Prioridade 1: Voz feminina portuguesa (ex: Google português do Brasil feminina)
+        let v = voices.find(vv => /pt-BR/i.test(vv.lang) && /female|feminina|luciana/i.test(vv.name));
+        
+        // Prioridade 2: Qualquer voz portuguesa do Brasil
+        if (!v) v = voices.find(vv => /pt-BR/i.test(vv.lang));
+        
+        // Prioridade 3: Qualquer voz Google portuguesa
+        if (!v) v = voices.find(vv => /google/i.test(vv.name) && /pt/i.test(vv.lang));
+        
+        // Prioridade 4: Qualquer voz Google
         if (!v) v = voices.find(vv => /google/i.test(vv.name));
+        
+        // Prioridade 5: Qualquer voz portuguesa
         if (!v) v = voices.find(vv => /^pt/.test(vv.lang));
+        
+        // Fallback: primeira voz disponível
         if (!v) v = voices[0];
+        
         return v;
     }
 
     const voice = chooseVoice();
     if (voice) {
         utter.voice = voice;
+        console.log('Voz selecionada:', voice.name, '|', voice.lang);
         window.speechSynthesis.speak(utter);
     } else {
         // se ainda não há vozes carregadas, aguarda o evento onvoiceschanged
         const onvoices = () => {
             try {
                 const v2 = chooseVoice();
-                if (v2) utter.voice = v2;
+                if (v2) {
+                    utter.voice = v2;
+                    console.log('Voz selecionada (após carregamento):', v2.name, '|', v2.lang);
+                }
                 window.speechSynthesis.speak(utter);
             } finally {
                 window.speechSynthesis.removeEventListener('voiceschanged', onvoices);
@@ -811,9 +868,22 @@ function speakOutLoud(text, confidence = null) {
     }
 }
 
+// Função auxiliar para listar todas as vozes disponíveis (útil para debug)
+function listAvailableVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    console.log('=== Vozes disponíveis ===');
+    voices.forEach((voice, index) => {
+        console.log(`${index}: ${voice.name} (${voice.lang}) ${voice.default ? '[DEFAULT]' : ''}`);
+    });
+}
+
 // Fala apenas o nome (sem confiança) — útil para o botão 'Identificar'
 function speakName(text) {
-    const utter = new SpeechSynthesisUtterance(String(text));
+    // Busca fala customizada
+    const customPhrase = getCustomPhrase(text);
+    const phrase = customPhrase || String(text);
+    
+    const utter = new SpeechSynthesisUtterance(phrase);
     utter.lang = 'pt-BR';
 
     function chooseVoice() {
@@ -853,6 +923,10 @@ function speakName(text) {
 // Função para inicializar o sistema
 async function init() {
     let video;
+    
+    // Carrega as falas customizadas antes de tudo
+    await loadCustomPhrases();
+    
     try {
         // preferRear=true tenta usar a câmera traseira em celulares
         video = await setupCamera(true);  // Inicia a câmera
