@@ -40,7 +40,7 @@ if [[ -z "$EXPORTED" ]]; then
   exit 3
 fi
 
-DEST="$PWD/../dataset3/model.onnx"
+DEST="$PWD/../data/dataset3/model.onnx"
 echo "Movendo $EXPORTED -> $DEST"
 mkdir -p "$(dirname "$DEST")"
 mv $EXPORTED "$DEST"

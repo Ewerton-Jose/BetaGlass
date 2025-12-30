@@ -155,8 +155,8 @@ function prettyNameForDisplay(cls) {
 }
 
 async function loadClassMap() {
-    // Tenta dataset3, depois dataset2, depois dataset (notes.json ou classes.txt)
-    const candidateBases = [`${BASE_PATH}dataset3`, `${BASE_PATH}dataset2`, `${BASE_PATH}dataset`];
+    // Tenta data/dataset3, depois dataset2, depois dataset (notes.json ou classes.txt)
+    const candidateBases = [`${BASE_PATH}data/dataset3`, `${BASE_PATH}dataset2`, `${BASE_PATH}dataset`];
     for (const base of candidateBases) {
         // notes.json
         try {
@@ -203,8 +203,8 @@ async function loadClassMap() {
 
 // Função para carregar o modelo (ONNX primeiro, depois TFJS, depois fallback)
 async function loadModel() {
-    // 1) Tenta ONNX em dataset3/model.onnx primeiro, depois dataset2/model.onnx, depois dataset/model.onnx (usando BASE_PATH para GitHub Pages)
-    let onnxUrl = `${BASE_PATH}dataset3/model.onnx`;
+    // 1) Tenta ONNX em data/dataset3/model.onnx primeiro (usando BASE_PATH para GitHub Pages)
+    let onnxUrl = `${BASE_PATH}data/dataset3/model.onnx`;
     try {
         let respOnnx = await fetch(onnxUrl, { method: 'HEAD' });
         if (!(respOnnx && respOnnx.ok)) {

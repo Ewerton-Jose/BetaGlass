@@ -3,18 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Detecção • BetaGlass</title>
-  <link rel="stylesheet" href="index.css" />
+  <title>BetaGlass — Detecção de Componentes Eletrônicos</title>
+  <link rel="stylesheet" href="assets/styles/index.css" />
+  <style>
+    .main-menu {
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .menu-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      padding: 30px 20px;
+      text-decoration: none;
+      display: block;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(2px);
+    }
+    .menu-card:hover {
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.3);
+      transform: translateY(-5px);
+    }
+    .menu-card h2 {
+      margin: 0 0 10px 0;
+      color: #fff;
+    }
+    .menu-card p {
+      margin: 0;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9em;
+    }
+  </style>
 </head>
 <body>
-  <div id="orientation-warning">
-    <p>📱 Por favor, vire seu celular para a horizontal</p>
+  <div class="main-menu">
+    <h1>🔬 BetaGlass</h1>
+    <p>Escolha a versão do detector de componentes eletrônicos:</p>
+    
+    <div class="menu-grid">
+      <a href="yolo/camera.html" class="menu-card">
+        <h2>🎯 YOLO v8</h2>
+        <p>Versão com YOLOv8 (ONNX). Mais precisa e rápida.</p>
+      </a>
+      
+      <a href="src/landing/index.html" class="menu-card">
+        <h2>🌐 Landing Page</h2>
+        <p>Página de apresentação do projeto.</p>
+      </a>
+    </div>
+    
+    <div style="margin-top: 60px; color: rgba(255,255,255,0.5); font-size: 0.85em;">
+      <p>📖 Consulte o <a href="README.md" style="color: rgba(255,255,255,0.7);">README.md</a> para mais informações</p>
+    </div>
   </div>
-  
-  <div class="center-start">
-    <button id="startBtn">▶ Começar Detecção</button>
-  </div>
-
-  <script src="script.js"></script>
 </body>
 </html>

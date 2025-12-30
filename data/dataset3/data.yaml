@@ -1,0 +1,13 @@
+# Use caminhos relativos para portabilidade
+train: data/dataset3/train/images
+val: data/dataset3/val/images
+
+# número de classes
+nc: 4
+
+# nomes das classes (ordem deve corresponder aos ids nos labels)
+names:
+  - Arduino
+  - Esp32
+  - Jumpers
+  - Protoboard

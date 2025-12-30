@@ -1,51 +1,66 @@
-# BetaGlass — MediaPipe Object Detection
+# 🔬 BetaGlass — Detecção de Componentes Eletrônicos
 
-Este repositório contém uma página web que usa a câmera para detectar componentes eletrônicos.
+Aplicativo educativo para ensino de robótica utilizando detecção de objetos via câmera.
 
-Atualização: substituímos o uso do Teachable Machine pela integração com MediaPipe Tasks (ObjectDetector).
+## 🚀 Acesso Rápido
 
-O que você precisa colocar neste repositório:
+Abra o `index.html` para escolher entre as versões disponíveis:
 
-- `model.tflite` — arquivo do modelo TensorFlow Lite treinado para detectar os componentes eletrônicos que você deseja.
+- **YOLO v8**: Detecção com YOLOv8 (ONNX) - mais precisa e rápida
+- **Landing Page**: Apresentação do projeto
 
-Como obter/gerar `model.tflite` a partir do Teachable Machine
+## 📁 Estrutura do Projeto
 
-1) Se você treinou no Teachable Machine, ao exportar escolha a opção "TensorFlow Lite (tflite)" quando disponível.
-   - Isso deve gerar um arquivo `.tflite` que você pode baixar.
-
-2) Se você tiver apenas a versão TensorFlow.js (model.json + pesos), pode converter para TFLite usando Python/TensorFlow. Exemplo resumido:
-
-```python
-# Exemplo ilustrativo — ajuste conforme seu modelo e ambiente
-import tensorflow as tf
-# Carregue seu modelo TF SavedModel (ou converta do TFJS para SavedModel antes)
-model = tf.keras.models.load_model('meu_saved_model')
-converter = tf.lite.TFLiteConverter.from_keras_model(model)
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
-# converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
-# converter.experimental_new_converter = True
-tflite_model = converter.convert()
-with open('model.tflite', 'wb') as f:
-    f.write(tflite_model)
+```
+BetaGlass/
+├── src/
+│   ├── yolo/           # Versão YOLOv8 (antiga pasta na raiz)
+│   └── landing/        # Landing page
+├── assets/
+│   ├── styles/         # CSS (index.css)
+├── data/
+│   └── dataset3/       # Dataset para treinamento
+├── scripts/            # Scripts de automação
+├── docs/               # Documentação completa
+│   ├── README.md       # Documentação detalhada
+│   ├── TRAINING.md     # Guia de treinamento
+│   └── LICENSE         # Licença do projeto
+└── index.html          # Página principal (menu)
 ```
 
-Se você precisa de instruções específicas para converter de Teachable Machine -> TFJS -> SavedModel -> TFLite, posso detalhar o passo a passo com comandos.
+## 🎯 Como Usar
 
-Como usar este projeto localmente
+### Localmente
 
-1. Coloque `model.tflite` na raiz do projeto (o mesmo diretório de `index.html`).
-2. Abra `index.html` em um servidor local (alguns navegadores bloqueiam getUserMedia em arquivos locais). Exemplo rápido com Python 3:
+1. Sirva o projeto com um servidor HTTP:
 
 ```bash
-# a partir da pasta do projeto
 python3 -m http.server 8000
-# abrir http://localhost:8000/index.html
 ```
 
-3. Clique em "Começar" e autorize o uso da câmera. O código tenta usar a câmera traseira (facingMode: environment). Se não houver câmera traseira, o navegador pode exibir um aviso.
+2. Acesse no navegador:
+   - http://localhost:8000/index.html
 
-Notas e limitações
-tensorflowjs_converter --input_format=tfjs_layers_model --output_format=tf_saved_model model.json saved_model
-- O MediaPipe Tasks espera um modelo TFLite compatível com detecção de objetos (com saída de caixas e rótulos). Nem todo `.tflite` funcionará sem ajustes; o modelo deve estar formatado para object detection (por exemplo, um modelo SSD ou similar com categorias).
-- Se você estiver usando um classificador de imagem (não um detector com caixas), podemos integrar o `ImageClassifier` do MediaPipe em vez do `ObjectDetector`. Diga qual formato de saída o seu modelo tem (rótulos por imagem ou boxes+labels) e eu adapto o código.
-- Posso ajudar a converter automaticamente seu modelo TM para TFLite se você compartilhar como o exportou (TFJS, SavedModel, etc.).
+### GitHub Pages
+
+O projeto está configurado para funcionar no GitHub Pages automaticamente.
+
+## 📚 Documentação Completa
+
+- [docs/README.md](docs/README.md) - Detalhes técnicos e integração com MediaPipe
+- [docs/TRAINING.md](docs/TRAINING.md) - Como treinar seu próprio modelo YOLOv8
+- [docs/LICENSE](docs/LICENSE) - Licença do projeto
+
+## 🛠️ Tecnologias
+
+- **Frontend**: HTML5, CSS3, JavaScript (vanilla)
+- **ML**: YOLOv8 (ONNX)
+- **Computer Vision**: ONNX Runtime
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+
+## 📄 Licença
+
+Consulte [docs/LICENSE](docs/LICENSE) para mais informações.

@@ -5,7 +5,7 @@ set -euo pipefail
 
 # defaults
 OPSET=12
-DEST_REL="dataset3/model.onnx"
+DEST_REL="data/dataset3/model.onnx"
 CKPT_ARG=""
 
 # parse args

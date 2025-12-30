@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboticHelp</title>
+  <style>
+    :root{
+      --bg:#071833; /* fundo escuro azul */
+      --card-top:#0b3b63;
+      --card-bot:#06283f;
+      --accent:#1e90ff;
+      --muted:#bcd6ff;
+    }
+    *{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--muted);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    header {
+      background-image: linear-gradient(rgba(5,12,30,0.2), rgba(2,10,28,0.25)), url("logo.jpeg");
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: scroll;
+      height: 50vh;
+      min-height:280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+    }
+
+    header h1{
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin:0;
+      letter-spacing:1px;
+      color:#fff;
+      text-shadow:0 6px 30px rgba(0,0,0,0.6);
+    }
+
+    main{max-width:1200px;margin: -60px auto 40px;padding:0 20px}
+
+    .section-card{
+      display:flex;
+      gap:28px;
+      align-items:center;
+      background: linear-gradient(180deg,var(--card-top),var(--card-bot));
+      border-radius:14px;
+      padding:28px;
+      margin-bottom:22px;
+      box-shadow: 0 12px 40px rgba(2,12,30,0.5);
+      color: #eaf6ff;
+      overflow:hidden;
+    }
+
+    .section-card .text{
+      flex:1 1 60%;
+    }
+
+    .section-card h2{margin:0 0 10px;font-size:1.6rem;color:var(--accent)}
+    .section-card p{margin:0;line-height:1.5;color:var(--muted)}
+
+    .cta-button{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:14px;
+      padding:12px 18px;
+      background:var(--accent);
+      color:#041024;
+      font-weight:700;
+      border-radius:10px;
+      text-decoration:none;
+      box-shadow:0 10px 30px rgba(30,144,255,0.35);
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .cta-button:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(30,144,255,0.45)}
+    .cta-button span{font-size:1rem}
+
+    .section-card img{
+      width:360px;
+      height:220px;
+      object-fit:cover;
+      border-radius:10px;
+      flex:0 0 360px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      border:3px solid rgba(255,255,255,0.03);
+    }
+
+    /* strip com 3 imagens apenas (sem texto) */
+    .image-only-strip{
+      display:flex;
+      gap:18px;
+      margin:26px 0 40px;
+      align-items:center;
+      justify-content:center;
+    }
+    .image-only-strip img{
+      width:32%;
+      height:220px;
+      object-fit:cover;
+      border-radius:12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      border:4px solid rgba(255,255,255,0.03);
+    }
+
+    .read-page-btn{
+      position:fixed;
+      top:16px;
+      right:16px;
+      z-index:20;
+      background:#fff;
+      color:#041024;
+      border:1px solid rgba(0,0,0,0.08);
+      border-radius:12px;
+      padding:12px;
+      width:48px;
+      height:48px;
+      display:grid;
+      place-items:center;
+      font-size:1.4rem;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,0.35);
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .read-page-btn:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(0,0,0,0.45)}
+    .read-page-btn:active{transform:translateY(0)}
+
+    /* carrosel final */
+    .carousel-section{
+      margin:10px 0 50px;
+      padding:20px 16px 16px;
+      background:linear-gradient(180deg,#0b2745,#081d33);
+      border-radius:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.45);
+      border:1px solid rgba(255,255,255,0.04);
+    }
+    .carousel-header{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:10px;
+    }
+    .carousel-header h3{margin:0;font-size:1.2rem;color:var(--accent)}
+    .carousel-shell{position:relative;padding:0 48px}
+    .carousel-btn{
+      width:42px;height:42px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.12);
+      color:#eaf6ff;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      transition:all .2s ease;
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:2;
+    }
+    .carousel-btn:hover{background:rgba(255,255,255,0.18);transform:translateY(-50%) scale(1.03)}
+    #carousel-prev{left:0}
+    #carousel-next{right:0}
+    .carousel-window{
+      overflow:hidden;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.06);
+      position:relative;
+    }
+    .carousel-track{
+      display:flex;
+      gap:14px;
+      padding:4px;
+      transition:transform .35s ease;
+      will-change:transform;
+    }
+    .carousel-item{
+      min-width:260px;
+      max-width:320px;
+      flex:1 0 calc(33.33% - 10px);
+      position:relative;
+    }
+    .carousel-item img{
+      width:100%;
+      height:200px;
+      object-fit:cover;
+      border-radius:10px;
+      box-shadow:0 10px 28px rgba(0,0,0,0.45);
+    }
+    .carousel-dots{
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      margin:12px 0 6px;
+    }
+    .carousel-dot{
+      width:8px;height:8px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.2);
+      cursor:pointer;
+      transition:transform .2s ease, background .2s ease;
+    }
+    .carousel-dot.active{background:var(--accent);transform:scale(1.1)}
+
+    @media (max-width:900px){
+      .carousel-shell{padding:0 32px}
+      .carousel-item{flex:1 0 80%;min-width:240px}
+      .carousel-item img{height:190px}
+    }
+
+    footer{
+      text-align:center;
+      padding:22px 12px;
+      color:#dbeeff;
+      background:linear-gradient(90deg,#05233a,#0b2a4a);
+      border-top:1px solid rgba(255,255,255,0.02);
+    }
+
+    /* responsivo */
+    @media (max-width:900px){
+      .section-card{flex-direction:column;align-items:flex-start;padding:20px}
+      .section-card img{width:100%;height:200px;flex:0 0 auto}
+      .image-only-strip{flex-direction:column}
+      .image-only-strip img{width:100%;height:180px}
+      main{margin-top:-30px}
+    }
+
+    @media (max-width:500px){
+      header{height:40vh;min-height:200px;background-size:cover}
+      header h1{font-size:1.5rem}
+      .section-card{padding:16px;gap:16px}
+      .section-card h2{font-size:1.3rem}
+      .section-card img{height:160px}
+      .carousel-shell{padding:0 28px}
+      .carousel-btn{width:36px;height:36px;font-size:1.2rem}
+      .read-page-btn{top:12px;right:12px;width:44px;height:44px;font-size:1.3rem}
+      main{padding:0 12px;margin-top:-40px}
+    }
+
+    @media (max-width:320px){
+      header{min-height:180px;height:35vh}
+      .section-card{padding:12px;gap:12px}
+      .section-card h2{font-size:1.2rem}
+      .section-card p{font-size:0.9rem}
+      .carousel-shell{padding:0 24px}
+      main{margin-top:-50px}
+    }
+
+  </style>
+</head>
+<body>
+  <button class="read-page-btn" id="read-page-btn" aria-label="Ler conteúdo da página">
+    🔊
+  </button>
+  <header>
+    <h1></h1>
+  </header>
+
+  <main>
+    <section class="section-card">
+      <div class="text">
+        <h2>Baixa Visão e Robótica</h2>
+        <p>
+        A RoboticHelp nasce para aproximar alunos de <strong>baixa visão</strong> ao mundo da robótica.  Hoje, no Recife e em partes da Região Metropolitana, o ensino de robótica para todos os tipos de jovens já é uma realidade, mas os alunos com baixa visão acabam sendo deixados de lado. Com isso, desenvolvemos um app/site responsável por auxiliar esses jovens.
+      </p>
+      </div>
+      <img src="treino3.png" alt="Nossa ideia">
+    </section>
+
+    <section class="section-card">
+      <div class="text">
+        <h2>Nosso App</h2>
+        <p>Treinamos uma ia, que é capaz de identificar peças de robótica em tempo real e explicar sua funcionalidade para o estudante a partir do aúdio, assim fazendo que ele possa ter o seu protagonismo.</p>
+        <a class="cta-button" href="../../yolo/camera.html">
+          <span>🎯 Abrir app com YOLO</span>
+        </a>
+      </div>
+      <img src="exemple1.jpeg" alt="Nosso app">
+    </section>
+
+    <section class="section-card">
+      <div class="text">
+        <h2>Sobre a Equipe</h2>
+        <p>Somos um time multidisciplinar apaixonado por educação e acessibilidade. Unimos robótica, visão computacional e design inclusivo para entregar ferramentas que empoderam estudantes com baixa visão. Acreditamos que tecnologia boa é aquela que aproxima e dá autonomia.</p>
+      </div>
+      <img src="NossaEquipe.jpeg" alt="Equipe RoboticHelp">
+    </section>
+
+    <section class="carousel-section" aria-label="Galeria de imagens extras">
+      <div class="carousel-header">
+        <h3>Mais momentos da RoboticHelp</h3>
+      </div>
+      <div class="carousel-shell">
+        <button class="carousel-btn" id="carousel-prev" aria-label="Anterior">‹</button>
+        <div class="carousel-window">
+          <div class="carousel-track" id="carousel-track">
+            <div class="carousel-item"><img src="apresentacao4.jpeg" alt="Apresentação 4"></div>
+            <div class="carousel-item"><img src="apresentacao1.jpeg" alt="Apresentação 1"></div>
+            <div class="carousel-item"><img src="apresentacao3.jpeg" alt="Apresentação 3"></div>
+            
+            <div class="carousel-item"><img src="treino.png" alt="Treino 1"></div>
+            <div class="carousel-item"><img src="treino2.png" alt="Treino 2"></div>
+            <div class="carousel-item"><img src="apresentacao2.jpeg" alt="Apresentação 2"></div>
+          </div>
+        </div>
+        <button class="carousel-btn" id="carousel-next" aria-label="Próximo">›</button>
+      </div>
+      <div class="carousel-dots" id="carousel-dots" aria-hidden="true"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2025 RoboticHelp — Criando tecnologia para aproximar pessoas.
+  </footer>
+
+  <script>
+    (function(){
+      const btn = document.getElementById('read-page-btn');
+      if(!btn) return;
+      const synth = window.speechSynthesis;
+      if(!synth){
+        btn.disabled = true;
+        btn.title = 'Leitura não suportada neste navegador';
+        return;
+      }
+
+      const getText = () => {
+        const main = document.querySelector('main');
+        const headerTitle = document.querySelector('header')?.innerText || '';
+        const mainText = main ? main.innerText : document.body.innerText;
+        return `${headerTitle}\n${mainText}`.replace(/\s+/g,' ').trim();
+      };
+
+      btn.addEventListener('click',()=>{
+        synth.cancel();
+        const text = getText();
+        if(!text) return;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'pt-BR';
+        utter.rate = 1;
+        utter.pitch = 1;
+        synth.speak(utter);
+      });
+    })();
+
+    (function(){
+      const track = document.getElementById('carousel-track');
+      if(!track) return;
+      const items = Array.from(track.children);
+      const prev = document.getElementById('carousel-prev');
+      const next = document.getElementById('carousel-next');
+      const dotsWrap = document.getElementById('carousel-dots');
+      const windowEl = track.parentElement;
+      let index = 0;
+      let itemWidth = 0;
+      let maxIndex = 0;
+      let autoplayInterval = null;
+      let userInteracted = false;
+
+      const apply = () => {
+        track.style.transform = `translateX(${-index * itemWidth}px)`;
+        Array.from(dotsWrap.children).forEach((dot,i)=>{
+          dot.classList.toggle('active', i===index);
+        });
+      };
+
+      const recalc = () => {
+        if (!items.length) return;
+        const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || '14') || 14;
+        const firstWidth = items[0].getBoundingClientRect().width;
+        itemWidth = firstWidth + gap;
+        const visible = Math.max(1, Math.round(windowEl.getBoundingClientRect().width / itemWidth));
+        maxIndex = Math.max(0, items.length - visible);
+        if (index > maxIndex) index = maxIndex;
+        apply();
+      };
+
+      const stopAutoplay = () => {
+        if(autoplayInterval){
+          clearInterval(autoplayInterval);
+          autoplayInterval = null;
+        }
+      };
+
+      const startAutoplay = () => {
+        if(userInteracted) return;
+        stopAutoplay();
+        autoplayInterval = setInterval(()=>{
+          index = index >= maxIndex ? 0 : index + 1;
+          apply();
+        }, 4000);
+      };
+
+      items.forEach((_,i)=>{
+        const dot = document.createElement('div');
+        dot.className = 'carousel-dot' + (i===0 ? ' active' : '');
+        dot.addEventListener('click',()=>{
+          userInteracted = true;
+          stopAutoplay();
+          index=i;
+          apply();
+        });
+        dotsWrap.appendChild(dot);
+      });
+
+      prev.addEventListener('click',()=>{
+        userInteracted = true;
+        stopAutoplay();
+        index = index<=0 ? maxIndex : index-1;
+        apply();
+      });
+      
+      next.addEventListener('click',()=>{
+        userInteracted = true;
+        stopAutoplay();
+        index = index>=maxIndex ? 0 : index+1;
+        apply();
+      });
+
+      window.addEventListener('resize', recalc);
+      recalc();
+      startAutoplay();
+    })();
+  </script>
+</body>
+</html>

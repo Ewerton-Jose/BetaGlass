@@ -1,0 +1,49 @@
+# Modelos treinados (grandes arquivos binários)
+*.pt
+*.onnx
+*.tflite
+*.h5
+*.pb
+*.weights
+*.caffemodel
+
+# Datasets e imagens (não versionar)
+data/dataset3/images/
+data/dataset3/train/
+data/dataset3/val/
+data/*/images/
+data/*/train/
+data/*/val/
+
+# Resultados de treinamento
+runs/
+weights/
+results/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Node/npm (caso adicione)
+node_modules/
+package-lock.json
+yarn.lock
